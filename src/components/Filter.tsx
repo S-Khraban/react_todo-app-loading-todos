@@ -1,17 +1,27 @@
 import cn from 'classnames';
 
-export type FilterStatus = 'all' | 'active' | 'completed';
+export enum FilterStatus {
+  All = 'all',
+  Active = 'active',
+  Completed = 'completed',
+}
 
 type Props = {
   value: FilterStatus;
   onChange: (nextStatus: FilterStatus) => void;
 };
 
-const FILTERS: FilterStatus[] = ['all', 'active', 'completed'];
+const FILTERS: FilterStatus[] = [
+  FilterStatus.All,
+  FilterStatus.Active,
+  FilterStatus.Completed,
+];
+
 const getHref = (status: FilterStatus) =>
-  status === 'all' ? '#/' : `#/${status}`;
+  status === FilterStatus.All ? '#/' : `#/${status}`;
+
 const toTitle = (status: FilterStatus) =>
-  status[0].toUpperCase() + status.slice(1);
+  status.charAt(0).toUpperCase() + status.slice(1);
 
 export const Filter: React.FC<Props> = ({ value, onChange }) => {
   const handleLinkClick = (
