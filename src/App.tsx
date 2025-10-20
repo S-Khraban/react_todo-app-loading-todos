@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import cn from 'classnames';
 import { UserWarning } from './UserWarning';
 import { USER_ID, getTodos } from './api/todos';
@@ -13,7 +13,9 @@ export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>(FilterStatus.All);
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>(
+    FilterStatus.All,
+  );
 
   const newTodoInputRef = useRef<HTMLInputElement>(null);
   const hideErrorTimeoutIdRef = useRef<number | null>(null);
@@ -25,18 +27,18 @@ export const App: React.FC = () => {
     }
   };
 
-  const hideError = () => {
+  const hideError = useCallback(() => {
     clearErrorTimer();
     setErrorMessage(null);
-  };
+  }, []);
 
-  const showError = (message: string) => {
+  const showError = useCallback((message: string) => {
     setErrorMessage(message);
     clearErrorTimer();
     hideErrorTimeoutIdRef.current = window.setTimeout(() => {
       setErrorMessage(null);
     }, 3000);
-  };
+  }, []);
 
   useEffect(() => {
     newTodoInputRef.current?.focus();
@@ -46,6 +48,7 @@ export const App: React.FC = () => {
         hideError();
         setIsLoading(true);
         const data = await getTodos();
+
         setTodos(data);
       } catch {
         showError('Unable to load todos');
@@ -55,7 +58,7 @@ export const App: React.FC = () => {
     })();
 
     return () => clearErrorTimer();
-  }, []);
+  }, [hideError, showError]);
 
   const filteredTodos =
     filterStatus === FilterStatus.Active
@@ -97,7 +100,9 @@ export const App: React.FC = () => {
           <button
             type="button"
             data-cy="ToggleAllButton"
-            className={cn('todoapp__toggle-all', { active: activeTodosCount === 0 && hasTodos })}
+            className={cn('todoapp__toggle-all', {
+              active: activeTodosCount === 0 && hasTodos,
+            })}
             onClick={handleToggleAllClick}
             disabled
             aria-label="toggle all"
