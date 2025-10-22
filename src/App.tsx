@@ -20,25 +20,28 @@ export const App: React.FC = () => {
   const newTodoInputRef = useRef<HTMLInputElement>(null);
   const hideErrorTimeoutIdRef = useRef<number | null>(null);
 
-  const clearErrorTimer = () => {
+  const clearErrorTimer = useCallback(() => {
     if (hideErrorTimeoutIdRef.current) {
       window.clearTimeout(hideErrorTimeoutIdRef.current);
       hideErrorTimeoutIdRef.current = null;
     }
-  };
+  }, []);
 
   const hideError = useCallback(() => {
     clearErrorTimer();
     setErrorMessage(null);
-  }, []);
+  }, [clearErrorTimer]);
 
-  const showError = useCallback((message: string) => {
-    setErrorMessage(message);
-    clearErrorTimer();
-    hideErrorTimeoutIdRef.current = window.setTimeout(() => {
-      setErrorMessage(null);
-    }, 3000);
-  }, []);
+  const showError = useCallback(
+    (message: string) => {
+      setErrorMessage(message);
+      clearErrorTimer();
+      hideErrorTimeoutIdRef.current = window.setTimeout(() => {
+        setErrorMessage(null);
+      }, 3000);
+    },
+    [clearErrorTimer],
+  );
 
   useEffect(() => {
     newTodoInputRef.current?.focus();
@@ -58,7 +61,7 @@ export const App: React.FC = () => {
     })();
 
     return () => clearErrorTimer();
-  }, [hideError, showError]);
+  }, [hideError, showError, clearErrorTimer]);
 
   const filteredTodos =
     filterStatus === FilterStatus.Active
